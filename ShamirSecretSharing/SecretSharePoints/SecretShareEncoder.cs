@@ -15,7 +15,7 @@ namespace ShamirSecretSharing.SecretSharePoints
             _random = new Random();
         }
 
-        public IEnumerable<SecretSharePoint> Encode(int secret, int quorum, int mod, int shares)
+        public IEnumerable<SecretSharePoint> Encode(int secret, int quorum, int mod, IEnumerable<int> inputs)
         {
             var coefficients = new FiniteFieldInteger[quorum];
             coefficients[0] = new FiniteFieldInteger(secret, mod);
@@ -23,18 +23,22 @@ namespace ShamirSecretSharing.SecretSharePoints
             {
                 coefficients[i] = new FiniteFieldInteger(_random.Next(1, mod), mod);
             }
+            foreach (var input in inputs)
+            {
+                yield return SolveFunction(new FiniteFieldInteger(input, mod), coefficients, quorum);
+            }
+        }
 
+        public IEnumerable<SecretSharePoint> Encode(int secret, int quorum, int mod, int shares)
+        {            
             var inputs = Enumerable
                 .Range(1, mod)
                 .OrderBy(o => _random.Next())
                 .Take(shares);
-            foreach(var input in inputs)
-            {
-                yield return SolveFunction(new FiniteFieldInteger(input, mod), coefficients, quorum);
-            }           
+            return Encode(secret, quorum, mod, inputs);
         }
 
-        private SecretSharePoint SolveFunction(FiniteFieldInteger input, FiniteFieldInteger[] coefficients, int quorum)
+        private static SecretSharePoint SolveFunction(FiniteFieldInteger input, FiniteFieldInteger[] coefficients, int quorum)
         {
             var output = input.GetAdditiveIdentity();
             for(int i = 0; i < quorum; i++)

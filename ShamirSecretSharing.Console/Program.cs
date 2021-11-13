@@ -1,7 +1,6 @@
 ﻿using ShamirSecretSharing.SecretSharePoints;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace ShamirSecretSharing.Console
@@ -41,12 +40,42 @@ namespace ShamirSecretSharing.Console
             var results4a = secrets4.Take(4).Solve();
             var results4b = secrets4.Skip(4).Take(4).Solve();
 
-            var encodeWatch = Stopwatch.StartNew();
-            var secrets5 = encoder.Encode(12345678, 1000000, 1660573643).ToList();
-            encodeWatch.Stop();
-            var decodeWatch = Stopwatch.StartNew();
+            var secrets5 = encoder.Encode(12352, 500, 51627977).ToList();
             var result5 = secrets5.Solve();
-            decodeWatch.Stop();
+
+            HomomorphicDemonstration();
+
+
+        }
+
+        public static void HomomorphicDemonstration()
+        {
+            var encoder = new SecretShareEncoder();
+            var mod = 51627977;
+            var quorum = 3;
+            var inputs = new List<int>
+            {
+                12548,
+                23568,
+                78956
+            };
+
+            var secret1 = 456;
+            var secret2 = 8974;
+            var secret3 = 1234568;
+
+            var encoded1 = encoder.Encode(secret1, quorum, mod, inputs);
+            var encoded2 = encoder.Encode(secret2, quorum, mod, inputs);
+            var encoded3 = encoder.Encode(secret3, quorum, mod, inputs);
+
+            var decodedSum = encoded1
+                .Zip(encoded2)
+                .Select(x => x.First + x.Second)
+                .Zip(encoded3)
+                .Select(x => x.First + x.Second)
+                .Solve();
+
+            var secretsSum = secret1 + secret2 + secret3;
         }
     }
 }

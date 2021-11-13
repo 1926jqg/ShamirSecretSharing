@@ -104,5 +104,19 @@ namespace ShamirSecretSharing.FiniteFieldIntegers
         {        
             return a * b.GetMultiplicativeInverse();
         }
+
+        public static bool operator ==(FiniteFieldInteger a, FiniteFieldInteger b)
+        {
+            if (!a.IsCompatible(b))
+                throw new FiniteFieldCompatibilityException(a, b);
+            return a.Value == b.Value;
+        }
+
+        public static bool operator !=(FiniteFieldInteger a, FiniteFieldInteger b)
+        {
+            if (!a.IsCompatible(b))
+                throw new FiniteFieldCompatibilityException(a, b);
+            return a.Value != b.Value;
+        }
     }
 }

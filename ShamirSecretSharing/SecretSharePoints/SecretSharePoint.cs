@@ -32,9 +32,26 @@ namespace ShamirSecretSharing.SecretSharePoints
             return X.IsCompatible(other.X) && Quorum == other.Quorum;
         }
 
+        public bool CanBeAdded(SecretSharePoint other)
+        {
+            return IsCompatible(other) && X == other.X;
+        }
+
         public int GetModulus()
         {
             return X.Mod;
+        }
+
+        public override string ToString()
+        {
+            return $"f({X}) = {Y}";
+        }
+
+        public static SecretSharePoint operator +(SecretSharePoint a, SecretSharePoint b)
+        {
+            if (!a.CanBeAdded(b))
+                throw new Exception($"The points \"{a}\" and \"{b}\" cannot be added");
+            return new SecretSharePoint(a.X,a.Y + b.Y, a.Quorum);
         }
     }
 }
