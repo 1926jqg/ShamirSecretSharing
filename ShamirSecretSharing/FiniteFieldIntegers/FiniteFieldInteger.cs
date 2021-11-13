@@ -6,14 +6,25 @@ namespace ShamirSecretSharing.FiniteFieldIntegers
 {
     public struct FiniteFieldInteger : IEquatable<FiniteFieldInteger>
     {
-        public int Value { get; }
+        private readonly BigInteger _value;
+
+        public int Value 
+        { 
+            get
+            {
+                return (int)_value;
+            }
+        }
         public int Mod { get; }
 
-        public FiniteFieldInteger(int value, int mod)
+        private FiniteFieldInteger(BigInteger value, int mod)
         {
-            Value = value % mod;
+            _value = value % mod;
             Mod = mod;
         }
+
+        public FiniteFieldInteger(int value, int mod)
+            : this(new BigInteger(value), mod) { }
 
         public FiniteFieldInteger GetAdditiveIdentity()
         {
@@ -27,13 +38,13 @@ namespace ShamirSecretSharing.FiniteFieldIntegers
 
         public FiniteFieldInteger GetMultiplicativeInverse()
         {
-            var inverse = (int)BigInteger.ModPow(Value, Mod - 2, Mod);
+            var inverse = (int)BigInteger.ModPow(_value, Mod - 2, Mod);
             return new FiniteFieldInteger(inverse, Mod);
         }
 
         public FiniteFieldInteger GetAdditiveInverse()
         {
-            var inverse = Mod - Value;
+            var inverse = Mod - _value;
             return new FiniteFieldInteger(inverse, Mod);
         }
 
@@ -42,16 +53,21 @@ namespace ShamirSecretSharing.FiniteFieldIntegers
             return Mod == other.Mod;
         }
 
+        public FiniteFieldInteger Pow(int exponent)
+        {
+            return new FiniteFieldInteger((int)BigInteger.ModPow(_value, exponent, Mod), Mod);
+        }
+
         public override string ToString()
         {
-            return $"{Value} (mod {Mod})";
+            return $"{_value} (mod {Mod})";
         }
 
         public bool Equals([AllowNull] FiniteFieldInteger other)
         {
             if (!IsCompatible(other))
                 throw new FiniteFieldCompatibilityException(this, other);
-            return Value == other.Value;
+            return _value == other._value;
         }
 
         public override bool Equals(object obj)
@@ -65,14 +81,14 @@ namespace ShamirSecretSharing.FiniteFieldIntegers
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Value, Mod);
+            return HashCode.Combine(_value, Mod);
         }
 
         public static FiniteFieldInteger operator +(FiniteFieldInteger a, FiniteFieldInteger b)
         {
             if (!a.IsCompatible(b))
                 throw new FiniteFieldCompatibilityException(a, b);
-            return new FiniteFieldInteger(a.Value + b.Value, a.Mod);
+            return new FiniteFieldInteger(a._value + b._value, a.Mod);
         }
         public static FiniteFieldInteger operator -(FiniteFieldInteger a, FiniteFieldInteger b)
         {
@@ -82,7 +98,7 @@ namespace ShamirSecretSharing.FiniteFieldIntegers
         {
             if (!a.IsCompatible(b))
                 throw new FiniteFieldCompatibilityException(a, b);
-            return new FiniteFieldInteger(a.Value * b.Value, a.Mod);
+            return new FiniteFieldInteger(a._value * b._value, a.Mod);
         }
         public static FiniteFieldInteger operator /(FiniteFieldInteger a, FiniteFieldInteger b)
         {        
