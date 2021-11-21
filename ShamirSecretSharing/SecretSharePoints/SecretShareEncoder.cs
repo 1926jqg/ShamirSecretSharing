@@ -11,8 +11,12 @@ namespace ShamirSecretSharing.SecretSharePoints
         private readonly Random _random;
 
         public SecretShareEncoder()
+            : this(new Random())
         {
-            _random = new Random();
+        }
+        public SecretShareEncoder(Random random)
+        {
+            _random = random;
         }
 
         public IEnumerable<SecretSharePoint> Encode(int secret, int quorum, int mod, IEnumerable<int> inputs)

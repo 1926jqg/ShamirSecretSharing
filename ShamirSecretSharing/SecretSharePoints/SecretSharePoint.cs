@@ -11,6 +11,9 @@ namespace ShamirSecretSharing.SecretSharePoints
         internal FiniteFieldInteger Y { get; }
         public int Quorum { get; }
 
+        public int Input { get => X.Value; }
+        public int Output { get => Y.Value; }
+
         public SecretSharePoint(int x, int y, int quorum, int mod)
         {
             X = new FiniteFieldInteger(x, mod);
